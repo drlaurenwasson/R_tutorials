@@ -12,8 +12,7 @@ https://bioconductor.org/packages/release/bioc/html/DiffBind.html
 To install:
 `if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-
-BiocManager::install("DiffBind")`
+    BiocManager::install("DiffBind")`
 
 This will likely install other packages that are needed. Sometimes you will get an error saying that you have to install other packages. The error messages are pretty straightforward and you can google and install all the packages you need.
 

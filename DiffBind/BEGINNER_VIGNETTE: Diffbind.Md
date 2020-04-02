@@ -78,15 +78,33 @@ Next, we are going to establish a contrast (minmembers = the lowest number of re
 ```
 peaks<- dba.contrast(peaks, categories = DBA_TISSUE, minMembers = 2)
 ```
-
-#Perform the analysis:
+# Perform the analysis:
+```
 peaks<- dba.analyze(peaks)
 plot(peaks, contrast = 1)
-
 peaks.db<- dba.report(peaks)
-dba.plotPCA(peaks,DBA_TISSUE, label=DBA_TISSUE)
+```
+## Plot a PCA
+```
 dba.plotPCA(peaks,contrast=1, label=DBA_TISSUE)
-dba.plotMA(peaks)
+```
+Here you can export any plot by clicking "export" on the plot quadrant (bottom right), or you can directly save it using this code. This code is for a tiff, but can be changed for pdf or jpeg by replacing the relevant text.
+
+```
+tiff("filename.tiff")
+dba.plotPCA(peaks,contrast=1, label=DBA_TISSUE)
+dev.off()
+```
+## Volcano plot
+```
+dba.plotVolcano(peaks)
+```
+
+## Customizable dot plot
+Here I was able to customize the plot a bit using the R "plot" function, which is not DiffBind. To get help for any function type ?plot() and read the vignette that comes up on the right. Here I am plotting the concentration (# reads) versus fold change, and I've colored peaks with a positive fold change (up in WT) in read, and a negative fold change (up in mutant) in blue.
+
+```
+plot(peaks.db$Conc, peaks.db$Fold,pch=20,cex=.15,col=ifelse(peaks.db$Fold>=0,"red","blue"))
 ```
 
 

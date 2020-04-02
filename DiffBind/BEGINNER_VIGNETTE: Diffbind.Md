@@ -28,7 +28,7 @@ samples<- read.csv("metadata.csv")
 ```
 
 Your data should be formatted as a csv file and should be located in the working directory. I have provided a template here:
-[a relative link](DiffBind_example_metadata.csv)
+[metadata_example](DiffBind_example_metadata.csv)
 
 # Analyse the data
 

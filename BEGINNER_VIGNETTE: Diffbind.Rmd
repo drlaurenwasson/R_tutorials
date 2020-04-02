@@ -1,4 +1,4 @@
-<b>R for Beginners Vignette: DiffBind </b>
+R for Beginners Vignette: DiffBind 
 
 This is the vignette that will accompany the R script, where I go through line by line how the package works.
 

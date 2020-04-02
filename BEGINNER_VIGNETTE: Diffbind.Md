@@ -14,23 +14,33 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("DiffBind")
 ```
 
+This will install the DiffBind package. There will likely be other packages that DiffBind will auto-install that are required. To check if the installation happened correctly, try loading the package. If there was a problem with the installation, the package will not load and you will get an error. The error messages are usually pretty self explanatory, or can be googled pretty easily.
 
-This will install the DiffBind package. There will likely be other packages that DiffBind will auto-install that are required. 
+```
+#Load Diffbind
+library(DiffBind)
+```
+Next, we need to load a few other packages for this vignette. You will likely need to install these, and packages that are required by these packages. 
 
-`#Load Diffbind
-library(DiffBind)`
-
-If there was a problem with the installation, the package will not load and you will get an error. The error messages are usually pretty self explanatory, or can be googled pretty easily.
-
-`#Load other packages that I have already installed. You will likely need to install these, and packages that are required by these packages. 
+```
+#Load other packages: 
 library(ChIPseeker)
 library(clusterProfiler)
 library(ggplot2)
-library(VennDiagram)`
+library(VennDiagram)
+```
 
+Next, we need to load the genome that we are using. I use hg19 normally, but this can be changed to hg38 or mm10. The txdb is a UCSC genome package that we need to install and load. 
+
+```
+#Load the genome
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+
 #for mouse, the package to install and load:
 #if (!requireNamespace("BiocManager", quietly = TRUE))
 #  install.packages("BiocManager")
 #BiocManager::install("TxDb.Mmusculus.UCSC.mm10.knownGene")
 #https://bioconductor.org/packages/release/data/annotation/html/TxDb.Mmusculus.UCSC.mm10.knownGene.html
+
+library("TxDb.Mmusculus.UCSC.mm10.knownGene")
+```

@@ -44,3 +44,50 @@ library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 
 library("TxDb.Mmusculus.UCSC.mm10.knownGene")
 ```
+# Begin the analysis
+## Import your information
+
+```
+#Import mm10 information
+txdb<- TxDb.Mmusculus.UCSC.mm10.knownGene
+```
+
+```
+#Import your data
+peaks<- dba(sampleSheet="metadata.csv")
+samples<- read.csv("metadata.csv")
+```
+
+Your data should be formatted as a csv file and should be located in the working directory. I have provided a template here:
+[a relative link](DiffBind_example_metadata.csv)
+
+# Analyse the data
+
+A first look at the data, uncorrected and normalized. This will pull up a clustered heatmap of all the replicates.
+```
+plot(peaks)
+```
+Next, we are going to count the reads and calculate a binding matrix with scores based on read counts for every sample (affinity scores). For narrowpeaks, it is advisable to use the "summits" option to re-center each peak aroundthe point of greatest enrichment.
+
+```
+peaks<- dba.count(peaks, summits = 250)
+plot(peaks)
+```
+Next, we are going to establish a contrast (minmembers = the lowest number of replicates)
+
+```
+peaks<- dba.contrast(peaks, categories = DBA_TISSUE, minMembers = 2)
+```
+
+#Perform the analysis:
+peaks<- dba.analyze(peaks)
+plot(peaks, contrast = 1)
+
+peaks.db<- dba.report(peaks)
+dba.plotPCA(peaks,DBA_TISSUE, label=DBA_TISSUE)
+dba.plotPCA(peaks,contrast=1, label=DBA_TISSUE)
+dba.plotMA(peaks)
+```
+
+
+

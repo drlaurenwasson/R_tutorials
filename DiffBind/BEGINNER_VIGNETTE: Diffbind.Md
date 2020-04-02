@@ -20,37 +20,6 @@ This will install the DiffBind package. There will likely be other packages that
 #Load Diffbind
 library(DiffBind)
 ```
-Next, we need to load a few other packages for this vignette. You will likely need to install these, and packages that are required by these packages. 
-
-```
-#Load other packages: 
-library(ChIPseeker)
-library(clusterProfiler)
-library(ggplot2)
-library(VennDiagram)
-```
-
-Next, we need to load the genome that we are using. I use hg19 normally, but this can be changed to hg38 or mm10. The txdb is a UCSC genome package that we need to install and load. 
-
-```
-#Load the genome
-library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-
-#for mouse, the package to install and load:
-#if (!requireNamespace("BiocManager", quietly = TRUE))
-#  install.packages("BiocManager")
-#BiocManager::install("TxDb.Mmusculus.UCSC.mm10.knownGene")
-#https://bioconductor.org/packages/release/data/annotation/html/TxDb.Mmusculus.UCSC.mm10.knownGene.html
-
-library("TxDb.Mmusculus.UCSC.mm10.knownGene")
-```
-# Begin the analysis
-## Import your information
-
-```
-#Import mm10 information
-txdb<- TxDb.Mmusculus.UCSC.mm10.knownGene
-```
 
 ```
 #Import your data
@@ -106,6 +75,53 @@ Here I was able to customize the plot a bit using the R "plot" function, which i
 ```
 plot(peaks.db$Conc, peaks.db$Fold,pch=20,cex=.15,col=ifelse(peaks.db$Fold>=0,"red","blue"))
 ```
+
+## Make a peak file 
+This generates a table that you can view all of the differential peaks, with concentrations, fold changes, p-values and FDR.
+```
+peaks.db.df<- as.data.frame(peaks.db)
+```
+
+## Subset the peak file for up and down
+This is another nifty trick in R, subsetting dataframes. The following code makes a new variable in the environment, named "peads.db.PGP1enriched". This variable is going to be a subset of the data frame, where peaks.db.df$Fold>0.
+In a dataframe, you can specify a specific column using "$". Here we are looking to subset where the value in the column "Fold" > 0. We can do the same for the other direction.
+
+```
+peaks.db.PGP1enriched<- peaks.db.df[peaks.db.df$Fold>0,]
+peaks.db.CHD4enriched<- peaks.db.df[peaks.db.df$Fold<0,]
+```
+Now we can save these tables as text files, and they can either be opened in excel or viewed in R. 
+```
+write.table(peaks.db.PGP1enriched, file = "PGP1vsCHD4_D30_enriched_H3K4me3_peaks.txt", quote = F, row.names = F, sep = "\t")
+write.table(peaks.db.CHD4enriched, file = "CHD4vsPGP1_D30_enriched_H3K4me3_peaks.txt", quote = F, row.names = F)
+
+```
+To view this table (or any variable in R) in R, simply type:
+```
+View(peaks.db.PGP1enriched)
+``` 
+#Next thing we want to do is just get a bed file containing the chr start and stop, separate from this results table. To do this, we want to isolate three columns from the text file. 
+
+```
+write.table(peaks.db.PGP1enriched[,1:3], file = "PGP1vsCHD4_D30_enriched_H3K4me3_peaks.bed", quote = F, row.names = F, sep = "\t", col.names = F)
+```
+
+Here we are writing a table of the table peaks.db.PGP1enriched, but we are only taking the first three columns 
+peaks.db.PGP1enriched[,1:3]
+
+If we were to take the first three rows, it would look like this
+peaks.db.PGP1enriched[1:3,]
+
+The rows are entered before the comma, and the columns are entered after. If you wanted just the first three rows and columns 2-5, it would look like this
+
+peaks.db.PGP1enriched[1:3,2:5]
+
+Lastly, if you want all rows, but columns 1,3,5,and 8, it would look like this:
+peaks.db.PGP1enriched[,c(1,3,5,8)]
+
+That's DiffBind. If we want to annotate these peaks, we would need another package, ChIP-seeker. 
+
+
 
 
 

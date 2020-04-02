@@ -2,7 +2,7 @@
 
 These are some R tips that are not specific to any package, but more for R in general.
 
-## Manipulating data frames
+## 1. Manipulating data frames
 
 The data frame is likely the most useful thing about R, it can handle large data sets very easily. 
 
@@ -48,7 +48,7 @@ newdf<- peaks.db.PGP1enriched[,c(1,3,5,8)]
 ### Subsetting by certain values in a dataframe:
 Coming soon!
 
-## Overlapping lists
+## 2. Overlapping lists
 This is very, very useful for when you want to overlap two gene lists, say a ChIP-seq list of genes and an RNA-seq list of genes. For this to work, both gene lists need to be character vectors. In the environment, it should say chr if it's a character vector. 
 
 ### Make a column a character vector

@@ -8,9 +8,9 @@ First, lines with the "#" sign in front of the script are comments and will not 
 
 #Install Diffbind
 
-`if (!requireNamespace("BiocManager", quietly = TRUE)) \
+```if (!requireNamespace("BiocManager", quietly = TRUE)) \
   install.packages("BiocManager") \
-BiocManager::install("DiffBind")`
+BiocManager::install("DiffBind")```
 
 This will install the DiffBind package. There will likely be other packages that DiffBind will auto-install that are required. 
 

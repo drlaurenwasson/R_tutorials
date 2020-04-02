@@ -1,4 +1,4 @@
-<b> Intro to R Studio </b>
+<b> Intro to R Studio </b><br>
 When you open R studio, you should see four windows:
 - Top left window is source code. This is where your scripts will be shown to you.
 - Top right is your local R environment. 

@@ -4,4 +4,5 @@ Packages are the backbone of R. Packages are modules that are installed and load
 Packages can be downloaded in a number of ways:
 1. Directly in R:
 
-install.packages("ggplot2")
+`install.packages("ggplot2")`
+

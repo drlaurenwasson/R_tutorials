@@ -62,9 +62,10 @@ This takes all of the gene names in the df column "SYMBOL", then makes them a ch
 ### Loading in a gene list
 Now say, you received a list of significant genes from me, in a file called RNA_sig_genes.txt. It's just a list of genes like this:
 
-TBX5
+```TBX5
 MEF2C
 SMYD1
+```
 
 You will need to read in this list of genes. To do that:
 ```

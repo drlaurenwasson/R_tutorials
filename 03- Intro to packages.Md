@@ -1,4 +1,4 @@
-<b> Introduction to packages </b>
+<b> Introduction to packages </b><br>
 
 Packages are the backbone of R. Packages are modules that are installed and loaded in R to do a variety of functions. <br>
 Packages can be found on github or bioconductor. Google is your friend.

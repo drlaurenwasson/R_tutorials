@@ -1,4 +1,4 @@
-#R for Beginners Vignette: DiffBind
+# R for Beginners Vignette: DiffBind
 
 This is the vignette that will accompany the R script, where I go through line by line how the package works.
 
@@ -6,7 +6,7 @@ This script requires: Bam files for input and chip replicates, and the Peak file
 
 First, lines with the "#" sign in front of the script are comments and will not run in the terminal.
 
-#Install packages
+# Install packages
 ```
 #Install Diffbind
 if (!requireNamespace("BiocManager", quietly = TRUE))

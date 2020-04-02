@@ -6,8 +6,9 @@ This script requires: Bam files for input and chip replicates, and the Peak file
 
 First, lines with the "#" sign in front of the script are comments and will not run in the terminal.
 
-`#Install Diffbind \
-if (!requireNamespace("BiocManager", quietly = TRUE)) \
+#Install Diffbind
+
+`if (!requireNamespace("BiocManager", quietly = TRUE)) \
   install.packages("BiocManager") \
 BiocManager::install("DiffBind")`
 

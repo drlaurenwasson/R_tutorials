@@ -41,39 +41,39 @@ The data frame is likely the most useful thing about R, it can handle large data
 
 ### Rows and columns
 
-Say we have a data frame of an annotated bed file called ```peaks.db.PGP1enriched```. 
+Say we have a data frame called ```df```. 
 First, to view the data frame in a separate R window: 
 
 ```
-View(peaks.db.PGP1enriched)
+View(df)
 ```
 
 To see row and column names
 ```
-row.names(peaks.db.PGP1enriched)
-colnames(peaks.db.PGP1enriched)
+row.names(df)
+colnames(df)
 ```
 
 #### Isolating rows and columns 
 
 To take all the rows, but the first three columns of a data frame and assign it to a new variable:
 ```
-newdf<- peaks.db.PGP1enriched[,1:3]
+newdf<- df[,1:3]
 ```
 To take all the columns, but the first three rows of a data frame and assign it to a new variable:
 
 ```
-newdf<- peaks.db.PGP1enriched[1:3,]
+newdf<- df[1:3,]
 ```
 The rows are entered before the comma, and the columns are entered after. If you wanted just the first three rows and columns 2-5, it would look like this
 
 ```
-newdf<- peaks.db.PGP1enriched[1:3,2:5]
+newdf<- df[1:3,2:5]
 ```
 
 Lastly, if you want all rows, but columns 1,3,5,and 8, it would look like this:
 ```
-newdf<- peaks.db.PGP1enriched[,c(1,3,5,8)]
+newdf<- df[,c(1,3,5,8)]
 ```
 Because you are not removing sequential numbers, you would have to contain them in a list using c()
 
@@ -81,33 +81,56 @@ If you want to REMOVE rows you would stick a "minus" symbol in front. Here you a
 
 To remove the first row:
 ```
-newdf<- peaks.db.PGP1enriched[-1,]
+newdf<- df[-1,]
 ```
 To remove the first column:
 ```
-newdf<- peaks.db.PGP1enriched[,-1]
+newdf<- df[,-1]
 ```
 
 To remove rows 1:10: (Note, you have to put minus in front of both, otherwise you will get an error)
 ```
-newdf<- peaks.db.PGP1enriched[-1:-10,]
+newdf<- df[-1:-10,]
 ```
 
 To remove rows 1:10 and columns 4:6
 ```
-newdf<- peaks.db.PGP1enriched[-1:-10,-4:-6]
+newdf<- df[-1:-10,-4:-6]
 ```
 
 Lastly, to remove columns 1,3,5,and 8, but keep all rows, it would look like this:
 ```
-newdf<- peaks.db.PGP1enriched[,-c(1,3,5,8)]
+newdf<- df[,-c(1,3,5,8)]
 ```
 
 ### Subsetting by certain values in a dataframe:
-Coming soon!
+Lets say we have a dataframe (df), which has columns for fold change (fc) and p-value (pval). We want to subset for certain fold change or p-value. This is building upon the scenarios above. 
+
+To select a certain row of a dataframe:
+```
+newdf<- df[1,]
+```
+which would take only the first row (a "1" before the comma), but take all the columns (no value after the comma). This is building on the same idea. So you want to take all of the columns for specific rows, so you put your subsetting in brackets before the comma
+
+newdf<- df[<INSERTPARAMETERSHERE>,]
+
+Now, you have two parameters you want to break it down by. fold change and p value. First, fold change: You want to make sure that you take the absolute value of the fold change to get both up and down (or you can make two tables for up and down separately).  If you were just subsetting for fold change, taking all the columns for each row where abs(p) > 2, that would look like:
+```
+newdf<- df[abs(df$fc) > 2,]
+```
+If you want to subset just by p-value:
+```
+newdf<- df[df$pval < 0.05,]
+```
+
+To subset by BOTH, you combine the two commands with & (AND). Both parameters go before the comma, since we're subsetting rows by specific parameters.
+```
+newdf<- df[abs(df$fc) > 2 & df$pval < 0.05,]
+```
 
 ## 4. Overlapping lists
 This is very, very useful for when you want to overlap two gene lists, say a ChIP-seq list of genes and an RNA-seq list of genes. For this to work, both gene lists need to be character vectors. In the environment, it should say chr if it's a character vector. 
+
 
 ### Make a column a character vector
 Say we annotated our gene list and now have a data frame called df, and the gene names are in a column called SYMBOL.

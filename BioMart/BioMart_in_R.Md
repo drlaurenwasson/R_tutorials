@@ -48,5 +48,25 @@ hattributes<- listAttributes(hmart)
 View(hattributes)
 ```
 
+## Values
+Values are the actual values of the filter that you are inputting into BioMart. For example, if you were trying to get all of the genes on chromosome X, the filter would be "chromosome_name", but the value would be "X".
+
+## Mart
+The mart you are using. 
+
+# The analysis
+The crux of biomart is getBM the getBM command. Example 1: Get all genes on the human x and y chromosome
+
+```
+results1<- getBM(attributes = c("external_gene_name","chromosome_name"),
+                filters = "chromosome_name",
+                values = c("X", "Y"),
+                mart = hmart)
+```
+
+This command will take the filter "chromosome_name", filter for just the values "X" and "Y", and then provide the attributes, gene name and chromosome name. It will use the human mart to do so.
+
+
+
 
 

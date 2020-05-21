@@ -34,10 +34,11 @@ This assigns "TBX5" to a variable called "favgene". If you then type:
 
 ```R
 favegene
+```
+you will output "TBX5".
+```
 'TBX5'
 ```
-
-you will output "TBX5". 
 
 If you want to save more than one gene (say, a list of favorite genes), you use the concatenate function: c()
 

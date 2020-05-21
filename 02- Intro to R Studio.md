@@ -34,11 +34,8 @@ This assigns "TBX5" to a variable called "favgene". If you then type:
 
 ```R
 favegene
-```
-
-
 'TBX5'
-
+```
 
 you will output "TBX5". 
 

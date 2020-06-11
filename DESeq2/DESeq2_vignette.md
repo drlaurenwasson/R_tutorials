@@ -28,7 +28,7 @@ Also note that we are using un-normalized counts here (not RPKM), which are not 
 
 2. Metadata file
 
-A metadata file contains all of the relevant information to an experiment. 
+A metadata file contains all of the relevant information to an experiment. I have provied an example [here] (https://github.com/drlaurenwasson/R_tutorials/blob/master/DESeq2/metadata.csv)
 
 # Data Analysis
 

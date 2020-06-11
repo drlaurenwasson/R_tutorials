@@ -14,19 +14,21 @@ BiocManager::install("DESeq2")
 #Load (this must be done every time)
 library(DESeq2)
 ```
+# What you need to start
+1. Counts file
 
-# Of Note- Input data
+## Of Note- Input data
 DESEQ2 is an R package that takes an annotated counts file and performs differential expression analysis. There are two main inputs for DESEQ2, and it is your choice as to which you might use: 
 1) an annotated counts matrix file (developed using a program like FeatureCounts), which requires bam files as input (alignment to STAR). This is what we will be using in this markdown.
 2) an annotated counts file that was generated using transcript abundance quantifiers (Salmon, Sailfish, kallisto) from fastq files. This method is trending nowadays and is useful for quantifying alternate transcripts.
 The commands are almost the same for the two files, but I will mark the difference in the script.
 
-# Of Note- Normalized versus un-normalized reads
+## Of Note- Normalized versus un-normalized reads
 Also note that we are using un-normalized counts here (not RPKM), which are not normalized to gene LENGTH. DESEQ2 is designed to compare Gene A in Sample 1 versus Sample 2. Therefore, the length of the gene is irrelevant because we are comparing the same gene in two different samples. DESEQ2 does have a count normalization step within the analysis , so you could analyze data from separate batches (I would add a batch column to my metadata to test for potential batch effect) If you wanted to compare Gene A abundance to Gene B abundance in Sample 1, you would do this using RPKM, which DESEQ does have a command to calculate.
 
-# What you need to start
-1. Counts file (discussed above)
 2. Metadata file
+
+## The metadata file
 
 # Data Analysis
 

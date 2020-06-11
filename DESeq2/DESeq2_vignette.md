@@ -13,7 +13,15 @@ BiocManager::install("DESeq2")
 
 #Load (this must be done every time)
 library(DESeq2)
+
+#Load additional libraries that might be useful (these may need to be installed)
+library(ggplot2)
+library(pheatmap)
+library(RColorBrewer)
+library(VennDiagram)
+library(gProfileR)
 ```
+
 # What you need to start
 1. Counts file
 
@@ -28,43 +36,43 @@ Also note that we are using un-normalized counts here (not RPKM), which are not 
 
 2. Metadata file
 
-A metadata file contains all of the relevant information to an experiment. I have provied an example [here](https://github.com/drlaurenwasson/R_tutorials/blob/master/DESeq2/metadata.csv)
+A metadata file contains all of the relevant information to an experiment. I have provided an example [here](https://github.com/drlaurenwasson/R_tutorials/blob/master/DESeq2/metadata.csv). 
+
+My example experiment compares different mutant iPSC lines at Day 0 of differentiation. In my example I have the sample name, a description of the sample (to me, its the same, but to others it might not be), the cell line, the genotype, and what I call "exp", which is the variable that I choose to categorize the data by for analysis. "Exp" is a column in which I have no special characters (such as "/", which messes with the analysis but I use to describe the genotype), and is short enough to use as a label for things like PCA and heatmaps and other graphs. Other columns of metadata that might be useful include: time point, drug concentration, mouse strain background (if you have different strains), batch, date of sequencing, the person who did the experiment (if you're combining data).
 
 # Data Analysis
 
-#2019_04_26 Comparison between CHD4/CHD7 RNA seq of LOF variants
-#Combine CHD4 het replicates (2 clones)
+First, load in the counts file.
+```
+counts_file<- read.table("CHD7_data_1.txt")
+```
+You may want to only include protein coding genes in your analysis. 
 
-
-#Load libraries
-library(ggplot2)
-library(pheatmap)
-library(RColorBrewer)
-library(DESeq2)
-library(VennDiagram)
-library(gProfileR)
-
-CHD7_data_1<- read.table("CHD7_data_1.txt")
-
-CHD4_data<- read.table("CHD4_annotated_combined.counts", header = T)
-row.names(CHD4_data)<- make.names(CHD4_data$`symbol`, unique = TRUE)
+```
 #remove non-protein coding genes from analysis
 protein_genes<- read.table("protein_genes.txt")
-protein_genes<- protein_genes[-1,]
 protein_genes<- as.character(protein_genes$V1)
 
-CHD4_data_1<- CHD4_data[rownames(CHD4_data) %in% protein_genes,]
-
-CHD4_CHD7<- cbind(CHD7_data_1[,1:7], CHD4_data_1[,2:5])
-
+counts_protein_coding <- counts[rownames(counts) %in% protein_genes,]
+```
+Next, read in your metadata file
+```
 metadata<- read.csv("metadata.csv")
-row.names(metadata)<- metadata$X
+```
 
-all(names(CHD4_CHD7) %in% rownames(metadata))
-all(names(CHD4_CHD7) == rownames(metadata))
+The column names in the counts file MUST match the row names in the metadata file. 
+```
+all(names(counts_protein_coding) %in% rownames(metadata))
+```
+This must return "TRUE" to continue. If not, I find it's easiest to alter the rownames in the metadata file to match the column names of the counts file. Resave the metadata file and re-upload it into R.
 
-#DDS by genotype
-dds<- DESeqDataSetFromMatrix(countData = CHD4_CHD7, colData = metadata, design = ~ group )
+## Generate the dds (the backbone file of the analysis)
+Here I choose to perform the analysis using the groupings specified in the "exp" column of my metadata file.
+This is the command for a counts matrix file ("DESeqDataSetFromMatrix"). The commands would be different for txtimport from Sailfish or Salmon, and can be found on the page referenced above.
+
+```
+#DDS by "exp"
+dds<- DESeqDataSetFromMatrix(countData = counts_protein_coding, colData = metadata, design = ~ exp )
 dds<- estimateSizeFactors(dds)
 sizeFactors(dds)
 combined_normalized_counts_genotype<- counts(dds, normalized =TRUE)

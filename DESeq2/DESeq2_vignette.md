@@ -28,7 +28,7 @@ Also note that we are using un-normalized counts here (not RPKM), which are not 
 
 2. Metadata file
 
-## The metadata file
+A metadata file contains all of the relevant information to an experiment. 
 
 # Data Analysis
 

@@ -87,22 +87,34 @@ You can also normalize for read depth here
 ```
 dds<- estimateSizeFactors(dds)
 sizeFactors(dds)
-combined_normalized_counts_genotype<- counts(dds, normalized =TRUE)
+combined_normalized_counts<- counts(dds, normalized =TRUE)
+write.table(combined_normalized_counts, file= "dds_combined_normalized_counts_proteingenes.txt", sep = "\t", quote = FALSE)
 ```
-The last thing you need to do is assign a "reference" sample to do the comparisons. "By default, R will choose a reference level for factors based on alphabetical order. Then, if you never tell the DESeq2 functions which level you want to compare against (e.g. which level represents the control group), the comparisons will be based on the alphabetical order of the levels."
+The last thing you need to do is assign a "reference" sample to do the comparisons. "By default, R will choose a reference level for factors based on alphabetical order. Then, if you never tell the DESeq2 functions which level you want to compare against (e.g. which level represents the control group), the comparisons will be based on the alphabetical order of the levels." To set your reference, type in the reference from your metadata file (In my example, it's "wt").
+```
+dds$exp<- relevel(dds$exp, ref = "wt" )
+```
 
-dds$genotype<- relevel(dds$genotype, ref = "PGP1" )
+## Transform counts for PCA analysis
+Here we are log-transforming the dds file above to use in a PCA analysis. The PCA will plot the log-transformed data, and group by a variable that you provide (here it's "exp"). It will save the PCA in your working directory as a tiff file named "PCA_analysis.tiff".
 
 ```
-write.table(combined_normalized_counts_genotype, file= "dds_combined_normalized_counts_proteingenes.txt", sep = "\t", quote = FALSE)
-#Transform counts
 rld <- rlog(dds, blind = TRUE)
+
 #Plot PCA
 tiff(filename = "PCA_analysis.tiff",
      width = 480 ,height = 480, units = "px", pointsize = 12)
 plotPCA(rld, intgroup="exp")
 dev.off()
+```
 
+Now, to make the PCA fancy! Here, I have used ggplot2 to plot the same graph with a few modifications
+
+- chosen my own color scheme (a variable called my_colors)
+- chosen which components to actually graph (by default, a PCA graph will graph the first two principal components, but sometimes you might want to plot different components). This is represented by aes(PC1,PC2). I also chose here which variable to color by (exp).
+- changed the size of each dot (geom_point)
+- added X and Y labels to show the % variance
+```
 pcaData <- plotPCA(rld, intgroup="exp", returnData=TRUE)
 percentVar <- round(100 * attr(pcaData, "percentVar"))
 mycolors<- c("#209324","#ef0000","#1166d6","#e27106", "#e810aa", "#000000")
@@ -112,8 +124,10 @@ pcaplot<- ggplot(pcaData, aes(PC1,PC2, color = exp), scale_color_manual(values =
   ylab(paste0("PC2: ",percentVar[2],"% variance")) + 
   coord_fixed()
 pcaplot+ scale_color_manual(values = mycolors)
+```
+You can then export this PCA and overwrite the first one, if you'd like.
 
-#Correlation
+## Correlation test
 cortest<- cor(CHD4_CHD7, use = "all.obs", method = "pearson")
 cortest
 write.csv(cortest, file= "corrtest.csv", row.names= TRUE, col.names = TRUE)

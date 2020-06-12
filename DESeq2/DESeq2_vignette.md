@@ -67,16 +67,33 @@ all(names(counts_protein_coding) %in% rownames(metadata))
 This must return "TRUE" to continue. If not, I find it's easiest to alter the rownames in the metadata file to match the column names of the counts file. Resave the metadata file and re-upload it into R.
 
 ## Generate the dds (the backbone file of the analysis)
-Here I choose to perform the analysis using the groupings specified in the "exp" column of my metadata file.
-This is the command for a counts matrix file ("DESeqDataSetFromMatrix"). The commands would be different for txtimport from Sailfish or Salmon, and can be found on the page referenced above.
+Here I choose to perform the analysis using the groupings specified in the "exp" column of my metadata file. You can specify primary and secondary groupings if you wish (time point, genotype). Information for that is found in the detailed vignette.
+This is the command for a counts matrix file ("DESeqDataSetFromMatrix"). The commands would be different for txtimport from Sailfish or Salmon, and can be found on the page referenced above. 
 
 ```
 #DDS by "exp"
 dds<- DESeqDataSetFromMatrix(countData = counts_protein_coding, colData = metadata, design = ~ exp )
+```
+## Normalize counts/filter
+Here you can do things like only keep rows that have more than 10 total reads (between all the genotypes) to filter out very lowly expressed transcripts.
+
+```
+keep <- rowSums(counts(dds)) >= 10
+dds <- dds[keep,]
+```
+
+You can also normalize for read depth here
+
+```
 dds<- estimateSizeFactors(dds)
 sizeFactors(dds)
 combined_normalized_counts_genotype<- counts(dds, normalized =TRUE)
+```
+The last thing you need to do is assign a "reference" sample to do the comparisons. "By default, R will choose a reference level for factors based on alphabetical order. Then, if you never tell the DESeq2 functions which level you want to compare against (e.g. which level represents the control group), the comparisons will be based on the alphabetical order of the levels."
+
 dds$genotype<- relevel(dds$genotype, ref = "PGP1" )
+
+```
 write.table(combined_normalized_counts_genotype, file= "dds_combined_normalized_counts_proteingenes.txt", sep = "\t", quote = FALSE)
 #Transform counts
 rld <- rlog(dds, blind = TRUE)

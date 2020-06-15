@@ -128,20 +128,26 @@ pcaplot+ scale_color_manual(values = mycolors)
 You can then export this PCA and overwrite the first one, if you'd like.
 
 ## Correlation test
-cortest<- cor(CHD4_CHD7, use = "all.obs", method = "pearson")
+This is a quick R function that runs a correlation test to say how "alike" is each sample to every other sample. Values closest to 1 are highly correlative. Simetimes, if I get a funky-looking PCA, this can help me determine the weird sample in the dataset to remove it.
+
+```
+cortest<- cor(counts_protein_coding, use = "all.obs", method = "pearson")
 cortest
 write.csv(cortest, file= "corrtest.csv", row.names= TRUE, col.names = TRUE)
-
-#Run DESEQ
+```
+## Run DESEQ
+```
 dds <- DESeq(dds)
 plotDispEsts(dds)
+```
 
-# use the log transform on the data set
+## Generate some heatmaps of most DE genes (1000 most DE genes, and 250 most DEGs)
+```
 rld <- rlog(dds, blind=F)
 topVarianceGenes <- head(order(rowVars(assay(rld)), decreasing=T),1000)
 matrix <- assay(rld)[ topVarianceGenes, ]
 matrix <- matrix - rowMeans(matrix)
-#df<- as.data.frame(metadata(dds_combined_cellline))
+#df<- as.data.frame(metadata(dds))
 annotation_col<- as.data.frame(metadata$exp)
 row.names(annotation_col)<- row.names(metadata)
 colnames(annotation_col)<- "exp"
@@ -154,17 +160,19 @@ dev.off()
 top250VarianceGenes <- head(order(rowVars(assay(rld)), decreasing=T),250)
 matrix2 <- assay(rld)[ top250VarianceGenes, ]
 matrix2 <- matrix2 - rowMeans(matrix2)
-#df<- as.data.frame(metadata(dds_combined_cellline))
-annotation_col<- as.data.frame(metadata$cellline)
+#df<- as.data.frame(metadata(dds))
+annotation_col<- as.data.frame(metadata$exp)
 row.names(annotation_col)<- row.names(metadata)
-colnames(annotation_col)<- "cellline"
+colnames(annotation_col)<- "exp"
 pheatmap(matrix2, clustering_distance_rows = "correlation", annotation_col = annotation_col, show_rownames  = FALSE, show_colnames = FALSE, filename = "2019_01_10_top250misexpressedheatmap_norows_nocols.pdf")
 dev.off()
 pheatmap(matrix2, clustering_distance_rows = "correlation", annotation_col = annotation_col, cellwidth = 15, cellheight = 12, fontsize = 8, filename = "2019_01_10_top250misexpressedheatmap_genenames.pdf")
 dev.off()
+```
 
-#Perform principle component analysis
-pca<- princomp(combined_normalized_counts_genotype)
+## Another way to do PCA, with the added bonus of taking the genes that make up the principle components
+```
+pca<- princomp(combined_normalized_counts)
 #grab the top 50 genes from the top 4 components
 write.table(row.names(as.data.frame(sort(abs(pca$scores[,"Comp.1"]),decreasing=TRUE)[1:50])), file = "PCA_component1", quote = F, row.names = FALSE)
 pca.1<- as.character(read.table("PCA_component1")$V1)
@@ -174,25 +182,18 @@ write.table(row.names(as.data.frame(sort(abs(pca$scores[,"Comp.3"]),decreasing=T
 pca.3<- as.character(read.table("PCA_component3")$V1)
 write.table(row.names(as.data.frame(sort(abs(pca$scores[,"Comp.4"]),decreasing=TRUE)[1:50])), file = "PCA_component4", quote = F, row.names = FALSE)
 pca.4<- as.character(read.table("PCA_component4")$V1)
+```
+# Generate Results tables
+Here we generate results tables and actually do the comparison between wild type and mutant. In this example we are comparing "CHD7_het" to "wt"
 
-res_table_1D4_combined<- results(dds, contrast = c("group", "CHD7_het", "wt"))
-summary(res_table_1D4_combined)
-
-res_table_G1_combined<- results(dds, contrast = c("group", "CHD7_homo", "wt"))
-summary(res_table_G1_combined)
-
-res_table_CHD4_combined<- results(dds, contrast = c("group", "CHD4_het", "wt"))
-summary(res_table_CHD414_combined)
-
-res_table_CHD414_combined<- results(dds, contrast = c("genotype", "CHD4_14", "PGP1"))
-summary(res_table_CHD414_combined)
-
-res_table_CHD427_combined<- results(dds, contrast = c("genotype", "CHD4_27", "PGP1"))
-summary(res_table_CHD427_combined)
+```
+res_table<- results(dds, contrast = c("group", "CHD7_het", "wt"))
+summary(res_table)
 
 #Set thresholds
 padj.cutoff <- 0.01
 lfc.cutoff <- 0.58
+```
 
 threshold_1D4_combined_test<- res_table_1D4_combined$padj < padj.cutoff & abs(res_table_1D4_combined$log2FoldChange) > lfc.cutoff
 length(which(threshold_1D4_combined_test == TRUE))

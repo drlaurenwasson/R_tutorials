@@ -190,248 +190,81 @@ Here we generate results tables and actually do the comparison between wild type
 res_table<- results(dds, contrast = c("group", "CHD7_het", "wt"))
 summary(res_table)
 
+```
+## Determine significant genes by fold change and p-value
+This will subset your results table using an adjusted p-value and a log2 fold change cutoff (0.58 translates to 1.5 fold). The absolute log2 fold change is used so that it will take results that are differential in both directions. The last command will add a column to your table called "threshold", which is "True" if the gene is significant, and "False" if the gene is not significantly different.
+```
 #Set thresholds
 padj.cutoff <- 0.01
 lfc.cutoff <- 0.58
+
+threshold<- res_table$padj < padj.cutoff & abs(res_table$log2FoldChange) > lfc.cutoff
+length(which(threshold == TRUE))
+res_table$threshold<- threshold
 ```
 
-threshold_1D4_combined_test<- res_table_1D4_combined$padj < padj.cutoff & abs(res_table_1D4_combined$log2FoldChange) > lfc.cutoff
-length(which(threshold_1D4_combined_test == TRUE))
-res_table_1D4_combined$threshold<- threshold_1D4_combined_test
-
-threshold_G1_combined<- res_table_G1_combined$padj < padj.cutoff & abs(res_table_G1_combined$log2FoldChange) > lfc.cutoff
-length(which(threshold_G1_combined == TRUE))
-res_table_G1_combined$threshold<- threshold_G1_combined
-
-threshold_CHD4_combined<- res_table_CHD4_combined$padj < padj.cutoff & abs(res_table_CHD4_combined$log2FoldChange) > lfc.cutoff
-length(which(threshold_CHD4_combined == TRUE))
-res_table_CHD4_combined$threshold<- threshold_CHD4_combined
-
-
-threshold_CHD414_combined<- res_table_CHD414_combined$padj < padj.cutoff & abs(res_table_CHD414_combined$log2FoldChange) > lfc.cutoff
-length(which(threshold_CHD414_combined == TRUE))
-res_table_CHD414_combined$threshold<- threshold_CHD414_combined
-
-threshold_CHD427_combined<- res_table_CHD427_combined$padj < padj.cutoff & abs(res_table_CHD427_combined$log2FoldChange) > lfc.cutoff
-length(which(threshold_CHD427_combined == TRUE))
-res_table_CHD427_combined$threshold<- threshold_CHD427_combined
-
-#Plot expression for a single gene
+## Plot expression for a single gene
+```
 plotCounts(dds, gene="CHD4", intgroup = "exp" )
-plotCounts(dds, gene="FGF8", intgroup = "cellline")
-
-
+```
+## Genetate a volcano plot of all genes, with significant genes colored
+This uses the R package ggplot2 to generate a volcano plot of our data
+```
 #Volcano plot
-df_1D4_combined<- data.frame(res_table_1D4_combined)
-ggplot(df_1D4_combined) +
-  geom_point(aes(x=log2FoldChange, y=-log10(padj), colour=threshold_1D4_combined_test))  +
-  ggtitle('CHD7 Q1599X/+ D3U') +
+df_results<- data.frame(res_table)
+ggplot(df_results) +
+  geom_point(aes(x=log2FoldChange, y=-log10(padj), colour=threshold))  +
+  ggtitle('INSERT TITLE HERE') +
   xlab("log2 fold change") + 
   ylab("-log10 adjusted p-value") +
   theme(legend.position = "none",
         plot.title = element_text(size = rel(1.5)),
         axis.title = element_text(size = rel(1.5)),
         axis.text = element_text(size = rel(1.25))) 
-ggsave("1D4_volcano.tiff", plot = last_plot(), device = "tiff")
+ggsave("Volcano_plot.tiff", plot = last_plot(), device = "tiff")
 dev.off()
-
-df_1G1_combined<- data.frame(res_table_G1_combined)
-ggplot(df_1G1_combined) +
-  geom_point(aes(x=log2FoldChange, y=-log10(padj), colour=threshold_G1_combined))  +
-  ggtitle('CHD7 Q1599X/Q1599X D3U') +
-  xlab("log2 fold change") + 
-  ylab("-log10 adjusted p-value") +
-  theme(legend.position = "none",
-        plot.title = element_text(size = rel(1.5)),
-        axis.title = element_text(size = rel(1.5)),
-        axis.text = element_text(size = rel(1.25))) 
-ggsave("1G1_volcano.tiff", plot = last_plot(), device = "tiff")
-dev.off()
-
-df_CHD414_combined<- data.frame(res_table_CHD414_combined)
-ggplot(df_CHD414_combined) +
-  geom_point(aes(x=log2FoldChange, y=-log10(padj), colour=threshold_CHD414_combined)) +
-  ggtitle('CHD4 +/- D3U') +
-  xlab("log2 fold change") + 
-  ylab("-log10 adjusted p-value") +
-  theme(legend.position = "none",
-        plot.title = element_text(size = rel(1.5)),
-        axis.title = element_text(size = rel(1.5)),
-        axis.text = element_text(size = rel(1.25))) 
-ggsave("CHD414_volcano.tiff", plot = last_plot(), device = "tiff")
-dev.off()
-
-df_CHD427_combined<- data.frame(res_table_CHD427_combined)
-ggplot(df_CHD427_combined) +
-  geom_point(aes(x=log2FoldChange, y=-log10(padj), colour=threshold_CHD427_combined)) +
-  xlim(c(-2,2)) +
-  ggtitle('CHD4 comp het D3U') +
-  xlab("log2 fold change") + 
-  ylab("-log10 adjusted p-value") +
-  theme(legend.position = "none",
-        plot.title = element_text(size = rel(1.5)),
-        axis.title = element_text(size = rel(1.5)),
-        axis.text = element_text(size = rel(1.25)))
-ggsave("CHD427_volcano.tiff", plot = last_plot(), device = "tiff")
-dev.off()
-
+```
+## Distinguish genes that are up versus down
+```
 #Distinguish which genes are up and which are down
-threshold_1D4_UP_combined<- res_table_1D4_combined$padj < padj.cutoff & res_table_1D4_combined$log2FoldChange > lfc.cutoff
-length(which(threshold_1D4_UP_combined == TRUE))
-res_table_1D4_combined$threshold_UP<- threshold_1D4_UP_combined
-res_table_1D4_subsetcombined_UP<- subset(res_table_1D4_combined, threshold_UP == TRUE)
-res_table_1D4_subsetcombined_UP_genes<- row.names(res_table_1D4_subsetcombined_UP)
-#write.table(res_table_1D4_subsetcombined_UP, file = "2019_01_10_CHD7_1D4_significant_UP_15fold.txt", row.names = T, quote = F)
-#write.table(res_table_1D4_subsetcombined_UP_genes, file = "2019_01_10_CHD7_1D4_significant_UP_genes_15fold.txt", row.names = F, quote = F)
+res_table_up<- subset(res_table, threshold == TRUE & res_table$log2FoldChange > 0)
+sig_genes_up<- row.names(res_table_up)
 
-threshold_1D4_DOWN_combined<- res_table_1D4_combined$padj < padj.cutoff & res_table_1D4_combined$log2FoldChange < -lfc.cutoff
-length(which(threshold_1D4_DOWN_combined == TRUE))
-res_table_1D4_combined$threshold_DOWN<- threshold_1D4_DOWN_combined
-res_table_1D4_subsetcombined_DOWN<- subset(res_table_1D4_combined, threshold_DOWN == TRUE)
-res_table_1D4_subsetcombined_DOWN_genes<- row.names(res_table_1D4_subsetcombined_DOWN)
-#write.table(res_table_1D4_subsetcombined_DOWN, file = "2019_01_10_CHD7_1D4_significant_DOWN_15fold.txt", row.names = T, quote = F)
-#write.table(res_table_1D4_subsetcombined_DOWN_genes, file = "2019_01_10_CHD7_D3U_1D4_significant_DOWN_genes_15fold.txt", row.names = F, quote = F)
+write.table(res_table_up, file = "INSERT FILE NAME HERE", row.names = T, quote = F)
+write.table(sig_genes_up, file = "INSERT FILE NAME HERE", row.names = F, quote = F)
 
-#Use the old CHD7 diff expressed genes?
-A.cds.sig.up<- read.table("2019_01_11_1D4_genes.sig_15fold.UP.txt")
-A.cds.sig.up<- A.cds.sig.up$V1
-A.cds.sig.up<- as.character(A.cds.sig.up)
-A.cds.sig.up[!A.cds.sig.up %in% res_table_1D4_subsetcombined_UP_genes]
+res_table_down<- subset(res_table, threshold == TRUE & res_table$log2FoldChange < 0)
+sig_genes_down<- row.names(res_table_down)
 
-A.cds.sig.down<- read.table("2019_01_11_1D4_genes.sig_15fold.DOWN.txt")
-A.cds.sig.down<- A.cds.sig.down$V1
-A.cds.sig.down<- as.character(A.cds.sig.down)
-A.cds.sig.down[A.cds.sig.down %in% res_table_1D4_subsetcombined_DOWN_genes]
+write.table(res_table_down, file = "INSERT FILE NAME HERE", row.names = T, quote = F)
+write.table(sig_genes_down, file = "INSERT FILE NAME HERE", row.names = F, quote = F)
+```
 
-threshold_1G1_UP_combined<- res_table_G1_combined$padj < padj.cutoff & res_table_G1_combined$log2FoldChange > lfc.cutoff
-length(which(threshold_1G1_UP_combined == TRUE))
-res_table_G1_combined$threshold_UP<- threshold_1G1_UP_combined
-res_table_G1_subsetcombined_UP<- subset(res_table_G1_combined, threshold_UP == TRUE)
-res_table_1G1_subsetcombined_UP_genes<- row.names(res_table_G1_subsetcombined_UP)
-#write.table(res_table_1G1_subsetcombined_UP, file = "2019_01_10_CHD7_1G1_significant_UP_15fold.txt", row.names = T, quote = F)
-#write.table(res_table_1G1_subsetcombined_UP_genes, file = "2019_01_10_CHD7_1G1_significant_UP_genes_15fold.txt", row.names = F, quote = F)
-
-threshold_1G1_DOWN_combined<- res_table_G1_combined$padj < padj.cutoff & res_table_G1_combined$log2FoldChange < -lfc.cutoff
-length(which(threshold_1G1_DOWN_combined == TRUE))
-res_table_G1_combined$threshold_DOWN<- threshold_1G1_DOWN_combined
-res_table_G1_subsetcombined_DOWN<- subset(res_table_G1_combined, threshold_DOWN == TRUE)
-res_table_1G1_subsetcombined_DOWN_genes<- row.names(res_table_G1_subsetcombined_DOWN)
-#write.table(res_table_1G1_subsetcombined_DOWN, file = "2019_01_10_CHD7_1G1_significant_DOWN_15fold.txt", row.names = T, quote = F)
-#write.table(res_table_1G1_subsetcombined_DOWN_genes, file = "2019_01_10_CHD7_D3U_1G1_significant_DOWN_genes_15fold.txt", row.names = F, quote = F)
-
-#Use the old CHD7 diff expressed genes?
-C.cds.sig.up<- read.table("2019_01_11_1G1_genes.sig_15fold.UP.txt")
-C.cds.sig.up<- C.cds.sig.up$V1
-C.cds.sig.up<- as.character(C.cds.sig.up)
-C.cds.sig.up[!C.cds.sig.up %in% res_table_1G1_subsetcombined_UP_genes]
-
-C.cds.sig.down<- read.table("2019_01_11_1G1_genes.sig_15fold.DOWN.txt")
-C.cds.sig.down<- C.cds.sig.down$V1
-C.cds.sig.down<- as.character(C.cds.sig.down)
-C.cds.sig.down[C.cds.sig.down %in% res_table_1G1_subsetcombined_DOWN_genes]
-
-threshold_CHD414_UP_combined<- res_table_CHD414_combined$padj < padj.cutoff & res_table_CHD414_combined$log2FoldChange > lfc.cutoff
-length(which(threshold_CHD414_UP_combined == TRUE))
-res_table_CHD414_combined$threshold_UP<- threshold_CHD414_UP_combined
-res_table_CHD414_subsetcombined_UP<- subset(res_table_CHD414_combined, threshold_UP == TRUE)
-res_table_CHD414_subsetcombined_UP_genes<- row.names(res_table_CHD414_subsetcombined_UP)
-write.table(res_table_CHD414_subsetcombined_UP, file = "CHD414_significant_UP_15fold.txt", row.names = T, quote = F)
-write.table(res_table_CHD414_subsetcombined_UP_genes, file = "CHD414_significant_UP_genes_15fold.txt", row.names = F, quote = F)
-
-threshold_CHD414_DOWN_combined<- res_table_CHD414_combined$padj < padj.cutoff & res_table_CHD414_combined$log2FoldChange < -lfc.cutoff
-length(which(threshold_CHD414_DOWN_combined == TRUE))
-res_table_CHD414_combined$threshold_DOWN<- threshold_CHD414_DOWN_combined
-res_table_CHD414_subsetcombined_DOWN<- subset(res_table_CHD414_combined, threshold_DOWN == TRUE)
-res_table_CHD414_subsetcombined_DOWN_genes<- row.names(res_table_CHD414_subsetcombined_DOWN)
-write.table(res_table_CHD414_subsetcombined_DOWN, file = "CHD414_significant_DOWN_15fold.txt", row.names = T, quote = F)
-write.table(res_table_CHD414_subsetcombined_DOWN_genes, file = "CHD414_significant_DOWN_genes_15fold.txt", row.names = F, quote = F)
-
-threshold_CHD427_UP_combined<- res_table_CHD427_combined$padj < padj.cutoff & res_table_CHD427_combined$log2FoldChange > lfc.cutoff
-length(which(threshold_CHD427_UP_combined == TRUE))
-res_table_CHD427_combined$threshold_UP<- threshold_CHD427_UP_combined
-res_table_CHD427_subsetcombined_UP<- subset(res_table_CHD427_combined, threshold_UP == TRUE)
-res_table_CHD427_subsetcombined_UP_genes<- row.names(res_table_CHD427_subsetcombined_UP)
-write.table(res_table_CHD427_subsetcombined_UP, file = "CHD427_significant_UP_15fold.txt", row.names = T, quote = F)
-write.table(res_table_CHD427_subsetcombined_UP_genes, file = "CHD427_significant_UP_genes_15fold.txt", row.names = F, quote = F)
-
-threshold_CHD427_DOWN_combined<- res_table_CHD427_combined$padj < padj.cutoff & res_table_CHD427_combined$log2FoldChange < -lfc.cutoff
-length(which(threshold_CHD427_DOWN_combined == TRUE))
-res_table_CHD427_combined$threshold_DOWN<- threshold_CHD427_DOWN_combined
-res_table_CHD427_subsetcombined_DOWN<- subset(res_table_CHD427_combined, threshold_DOWN == TRUE)
-res_table_CHD427_subsetcombined_DOWN_genes<- row.names(res_table_CHD427_subsetcombined_DOWN)
-write.table(res_table_CHD427_subsetcombined_DOWN, file = "CHD427_significant_DOWN_15fold.txt", row.names = T, quote = F)
-write.table(res_table_CHD427_subsetcombined_DOWN_genes, file = "CHD7_D3U_CHD427_significant_DOWN_genes_15fold.txt", row.names = F, quote = F)
-
+## Combine the two to make a total DEG list
+```
 #Making gene tables and gene lists for sig genes that fit criteria (no matter up or down)
-res_table_1D4_subsetcombined<- subset(res_table_1D4_combined, threshold == TRUE)
-#write.table(res_table_1D4_subsetcombined, file = "2019_01_10_CHD7_1D4_significant_TOTAL.txt", row.names = T, quote = F)
-res_table_1D4_subsetcombined_genes<- unique(row.names(res_table_1D4_subsetcombined))
-#write.table(res_table_1D4_subsetcombined_genes, file = "2019_01_10_CHD7_1D4_significant_genes.txt", row.names = F, quote = F)
+res_table_sig<- subset(res_table, threshold == TRUE)
+#write.table(res_table_sig, file = "INSERT FILE NAME.txt", row.names = T, quote = F)
+sig_genes<- unique(row.names(res_table_sig))
+#write.table(sig_genes, file = "INSERT FILE NAME.txt", row.names = F, quote = F)
+```
 
-res_table_G1_subsetcombined<- subset(res_table_G1_combined, threshold == TRUE)
-#write.table(res_table_G1_subsetcombined, file = "2019_01_10_CHD7_1G1_significant_TOTAL.txt", row.names = T, quote = F)
-res_table_G1_subsetcombined_genes<- row.names(res_table_G1_subsetcombined)
-#write.table(res_table_G1_subsetcombined_genes, file = "2019_01_10_CHD7_1G1_significant_genes.txt", row.names = F, quote = F)
-
-res_table_CHD414_subsetcombined<- subset(res_table_CHD414_combined, threshold == TRUE)
-write.table(res_table_CHD414_subsetcombined, file = "CHD414_significant_TOTAL.txt", row.names = T, quote = F)
-res_table_CHD414_subsetcombined_genes<- row.names(res_table_CHD414_subsetcombined)
-write.table(res_table_CHD414_subsetcombined_genes, file = "CHD414_significant_genes.txt", row.names = F, quote = F)
-
-res_table_CHD427_subsetcombined<- subset(res_table_CHD427_combined, threshold == TRUE)
-write.table(res_table_CHD427_subsetcombined, file = "CHD427_significant_TOTAL.txt", row.names = T, quote = F)
-res_table_CHD427_subsetcombined_genes<- row.names(res_table_CHD427_subsetcombined)
-write.table(res_table_CHD427_subsetcombined_genes, file = "CHD427_significant_genes.txt", row.names = F, quote = F)
-
-#Heatmap
-##Get significant genes
-sig1D4_combined <- row.names(res_table_1D4_combined)[which(res_table_1D4_combined$threshold)]
-sig1D4_combined_up <- row.names(res_table_1D4_combined)[which(res_table_1D4_combined$threshold_UP)]
-sig1D4_combined_down <- row.names(res_table_1D4_combined)[which(res_table_1D4_combined$threshold_DOWN)]
-
-sigG1_combined <- row.names(res_table_G1_combined)[which(res_table_G1_combined$threshold)]
-sigG1_combined_up <- row.names(res_table_G1_combined)[which(res_table_G1_combined$threshold_UP)]
-sigG1_combined_down <- row.names(res_table_G1_combined)[which(res_table_G1_combined$threshold_DOWN)]
-
-sigCHD414_combined <- row.names(res_table_CHD414_combined)[which(res_table_CHD414_combined$threshold)]
-sigCHD414_combined_up <- row.names(res_table_CHD414_combined)[which(res_table_CHD414_combined$threshold_UP)]
-sigCHD414_combined_down <- row.names(res_table_CHD414_combined)[which(res_table_CHD414_combined$threshold_DOWN)]
-
-sigCHD427_combined <- row.names(res_table_CHD427_combined)[which(res_table_CHD427_combined$threshold)]
-sigCHD427_combined_up <- row.names(res_table_CHD427_combined)[which(res_table_CHD427_combined$threshold_UP)]
-sigCHD427_combined_down <- row.names(res_table_CHD427_combined)[which(res_table_CHD427_combined$threshold_DOWN)]
-
-#Extract normalized expression for significant genes
-norm_1D4_sig_combined<- combined_normalized_counts_genotype[sig1D4_combined, ]
-norm_G1_sig_combined<- combined_normalized_counts_genotype[sigG1_combined, ]
-norm_CHD414_sig_combined<- combined_normalized_counts_genotype[sigCHD414_combined, ]
-norm_CHD427_sig_combined<- combined_normalized_counts_genotype[sigCHD427_combined, ]
+## Heatmap
+```
+#Extract normalized counts for significant genes
+norm_counts_sig<- combined_normalized_counts[sig_genes, ]
 
 #Annotate heatmap
-annotation<- metadata[,"cellline", drop=F]
+annotation<- metadata[,"exp", drop=F]
 #Set a color palette
 heat.colors <- brewer.pal(6,"YlOrRd")
 #Run pheatmap
-pheatmap(norm_1D4_sig_combined, color = heat.colors, cluster_rows = T, show_rownames=F,
+pheatmap(norm_counts_sig, color = heat.colors, cluster_rows = T, show_rownames=F,
          annotation= annotation, border_color=NA, fontsize = 10, scale="row",
-         fontsize_row = 10, height=20, show_colnames = FALSE,filename = "2019_01_11_1D4_heatmap.pdf")
+         fontsize_row = 10, height=20, show_colnames = FALSE,filename = "heatmap.pdf")
 dev.off()
+```
 
-
-#pheatmap(norm_G1_sig_combined, color = heat.colors, cluster_rows = T, show_rownames=F,
-#        annotation= annotation, border_color=NA, fontsize = 10, scale="row",
-#       fontsize_row = 10, height=20, show_colnames = FALSE, filename = "2018_08_02_1G1_heatmap.pdf")
-#dev.off()
-
-pheatmap(norm_CHD414_sig_combined, color = heat.colors, cluster_rows = T, show_rownames=F,
-         annotation= annotation, border_color=NA, fontsize = 10, scale="row",
-         fontsize_row = 10, height=20, show_colnames = FALSE,filename = "2019_01_10_CHD414_heatmap.pdf")
-dev.off()
-
-pheatmap(norm_CHD427_sig_combined, color = heat.colors, cluster_rows = T, show_rownames=F,
-         annotation= annotation, border_color=NA, fontsize = 10, scale="row",
-         fontsize_row = 10, height=20, show_colnames = FALSE,filename = "2018_08_02_CHD427_heatmap.pdf")
-dev.off()
 
 #biocLite("VennDiagram")
 library(VennDiagram)

@@ -46,6 +46,14 @@ First, load in the counts file.
 ```
 counts_file<- read.table("CHD7_data_1.txt")
 ```
+
+You need to make the row names be the gene or transcript name. If you're using an annotated FeatureCounts file, make the following adjustments:
+```
+row.names(counts_file)<- make.names(counts_file$`symbol`, unique = TRUE)
+#Remove the symbol column (in my case, column 9)
+counts_file<- counts_file[,-9]
+```
+
 You may want to only include protein coding genes in your analysis. 
 
 ```
